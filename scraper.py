@@ -29,18 +29,18 @@ def main():
     matches = []
 
     # Find all anchor tags linking to specific accommodations
+    # Find all anchor tags linking to specific accommodations
     for a_tag in soup.find_all('a', href=True):
         if '/accommodations/' in a_tag['href']:
-            # Walk up the DOM to the parent list item containing both title and price
             container = a_tag.find_parent('li')
             if not container:
                 continue
             
-            # Find the text node containing the Euro symbol
-            price_node = container.find(string=lambda t: t and '€' in t)
-            if price_node:
-                # Clean French number formatting (e.g., "350,50 €" -> 350.50)
-                raw_price = price_node.replace('€', '').replace(',', '.').replace(' ', '').strip()
+            # Target the specific 'fr-badge' class to avoid false positives
+            price_badge = container.find('p', class_='fr-badge')
+            if price_badge and '€' in price_badge.text:
+                # Clean French number formatting (e.g., "552,1 €" -> 552.1)
+                raw_price = price_badge.text.replace('€', '').replace(',', '.').replace(' ', '').strip()
                 try:
                     price = float(raw_price)
                     if price < MAX_PRICE:
