@@ -2,7 +2,11 @@ name: CROUS Scraper
 
 on:
   schedule:
+<<<<<<< HEAD
     - cron: '*/11 6-16 * * *' # Runs every 11 minutes
+=======
+    - cron: '*/9 * * * *' # Runs every 10 minutes
+>>>>>>> 5fea789f3d7d7a9629a3076ba25dc5661afd3df1
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:
