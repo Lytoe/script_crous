@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 # Secrets fetched from GitHub Actions environment
 TELEGRAM_BOT_TOKEN = os.environ.get("bot8800179716:AAHGRrOaPm5hV_-8GCDF3Gcfdy4ioJED-DE")
 TELEGRAM_CHAT_ID = os.environ.get("8888921047")
-MAX_PRICE = 400.0
+MAX_PRICE = 600.0
 
 URL = "https://trouverunlogement.lescrous.fr/tools/47/search?bounds=6.134292_48.7092349_6.2126188_48.666906&locationName=Nancy+%2854000%29"
 HEADERS = {
