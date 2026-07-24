@@ -1,21 +1,17 @@
 name: CROUS Scraper
 
 on:
-  schedule:
-    # Runs every 10 minutes from 06:00 to 16:00 UTC (08:00 to 18:00 Paris Time)
-    - cron: '*/10 6-16 * * *'
-  workflow_dispatch: # Allows you to run it manually right now to test
+  repository_dispatch:
+    types: [check_housing]
+  workflow_dispatch:
 
 jobs:
-  build:
+  scrape:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
