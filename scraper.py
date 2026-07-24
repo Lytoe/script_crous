@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 MAX_PRICE = 400.0  # Set back to your target budget
+MIN_PRICE = 200.0
 
 URL = "https://trouverunlogement.lescrous.fr/tools/47/search?bounds=6.134292_48.7092349_6.2126188_48.666906&locationName=Nancy+%2854000%29"
 HEADERS = {
@@ -55,7 +56,7 @@ def main():
                 title = link_node.text.strip() or "Logement CROUS"
                 link = f"https://trouverunlogement.lescrous.fr{link_node['href']}"
 
-                if price < MAX_PRICE:
+                if MIN_PRICE <= price < MAX_PRICE:
                     matches.append(f"✅ <b>{title}</b>\n💰 {price}€\n🔗 <a href='{link}'>Voir le logement</a>")
             except ValueError:
                 continue
