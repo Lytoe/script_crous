@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+TELEGRAM_CHAT_ID = "549190594"
 
 # Updated URL for Île-de-France
 URL = "https://trouverunlogement.lescrous.fr/tools/47/search?bounds=1.4462445_49.241431_3.5592208_48.1201456&locationName=%C3%8Ele-de-France"
@@ -93,4 +93,8 @@ def main():
 
 
 if __name__ == "__main__":
+    # 1. First, send the test message to verify the bot works
+    send_alert("🔔 TEST: If you see this, the bot works!")
+
+    # 2. Then run the main scraper once
     main()
