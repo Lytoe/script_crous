@@ -94,7 +94,6 @@ def main():
 
 if __name__ == "__main__":
     # 1. First, send the test message to verify the bot works
-    send_alert("🔔 TEST: If you see this, the bot works!")
 
     # 2. Then run the main scraper once
     main()
