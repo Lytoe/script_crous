@@ -5,10 +5,8 @@ from bs4 import BeautifulSoup
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
-# The specific residences you want to target (lowercase for easier matching)
-TARGET_RESIDENCES = ["monbois", "boudonville"]
-
-URL = "https://trouverunlogement.lescrous.fr/tools/47/search?bounds=6.134292_48.7092349_6.2126188_48.666906&locationName=Nancy+%2854000%29"
+# Updated URL for Île-de-France
+URL = "https://trouverunlogement.lescrous.fr/tools/47/search?bounds=1.4462445_49.241431_3.5592208_48.1201456&locationName=%C3%8Ele-de-France"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -29,7 +27,6 @@ def send_alert(message):
 def main():
     try:
         response = requests.get(URL, headers=HEADERS, timeout=10)
-        # Force UTF-8 to prevent mangled Euro symbols
         response.encoding = 'utf-8'
         response.raise_for_status()
     except requests.RequestException as e:
@@ -48,40 +45,51 @@ def main():
         link_node = card.find(
             'a', href=lambda h: h and '/accommodations/' in h)
 
-        if price_node and link_node:
-            raw_text = str(price_node)
+        # Extract size from the specific <p> tag containing "m²"
+        size_node = None
+        for p in card.find_all('p', class_='fr-card__detail'):
+            if 'm²' in p.text:
+                size_node = p
+                break
+
+        if price_node and link_node and size_node:
+            # Clean and format price
+            raw_price = str(price_node)
             clean_price = (
-                raw_text.replace('€', '')
+                raw_price.replace('€', '')
                 .replace('\xa0', '')
                 .replace(' ', '')
                 .replace(',', '.')
                 .strip()
             )
+
+            # Clean and format size
+            raw_size = size_node.text.replace(
+                'm²', '').replace(',', '.').strip()
+
             try:
                 price = float(clean_price)
+                size = float(raw_size)
                 title = link_node.text.strip() or "Logement CROUS"
                 link = f"https://trouverunlogement.lescrous.fr{link_node['href']}"
 
-                # Check if the title matches our target residences
-                title_lower = title.lower()
-                is_target = any(
-                    residence in title_lower for residence in TARGET_RESIDENCES)
-
-                # If it's Monbois, Monbois Libération, or Boudonville, add it to matches
-                if is_target:
+                # Apply new filters: Price 200-500€ AND Size 10-20m²
+                if 200 <= price <= 500 and 10 <= size <= 20:
                     matches.append(
-                        f"✅ <b>{title}</b>\n💰 {price}€\n🔗 <a href='{link}'>Voir le logement</a>")
+                        f"✅ <b>{title}</b>\n💰 {price}€ | 📏 {size}m²\n🔗 <a href='{link}'>Voir le logement</a>"
+                    )
             except ValueError:
+                # Skips card if float conversion fails on weird data
                 continue
 
     if matches:
         unique_matches = list(set(matches))
-        message = f"🚨 <b>{len(unique_matches)} Logement(s) Monbois/Boudonville dispo(s)!</b>\n\n" + \
+        message = f"🚨 <b>{len(unique_matches)} Logement(s) en Île-de-France dispo(s)!</b>\n\n" + \
             "\n\n".join(unique_matches)
         send_alert(message)
         print("Alert sent to Telegram!")
     else:
-        print("No target housing found (Monbois, Boudonville).")
+        print("No housing found matching criteria (200-500€, 10-20m²).")
 
 
 if __name__ == "__main__":
